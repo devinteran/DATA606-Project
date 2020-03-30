@@ -1,0 +1,128 @@
+---
+title: "DATA 606 - Project Proposal"
+author: "Devin Teran"
+output: rmdformats::html_clean
+---
+
+### Data Preparation
+
+```{r libraries}
+library(tidyverse)
+library(dplyr)
+library(psych)
+```
+
+#### Import Data
+```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
+load(url('http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/counties.sav'))
+
+state <- read_csv('https://raw.githubusercontent.com/devinteran/DATA606-Project/master/states.csv')
+```
+#### Clean Data
+
+1. We're not going to need all of the columns for our analysis, so I will remove them now.  
+2. I'll remove rows that have NAs in the column democrat or republican.
+3. Combine the state region data with the counties data
+```{r clean-data}
+
+county_data <- left_join(counties,state,by = c("state" = "State Code"))
+
+county_data <- county_data %>% select(county,state,Region,Division,pop.density,college,income,democrat,republican)
+
+county_data <- county_data %>% filter(is.na(democrat) == FALSE)
+county_data <- county_data %>% filter(is.na(republican) == FALSE)
+
+```
+
+### Research question 
+
+**You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**  
+Are income,population density, or % college educated residents predictive of % of county residents voted for the Democratic or Republican Presidential nominee in the 1992 election? Do regions follow specific patterns? 
+
+### Cases 
+
+**What are the cases, and how many are there?**  
+Each case represents a single county.  There are 3,114 counties observed in the dataset.
+```{r case-count}
+nrow(county_data)
+```
+
+### Data collection 
+
+**Describe the method of data collection.**  
+This data was found on the Department of Biostatistics at Vanderbilt University website and Kaggle.
+
+### Type of study 
+
+**What type of study is this (observational/experiment)?**
+
+This is an observational study.  
+
+### Data Source 
+
+**If you collected the data, state self-collected. If not, provide a citation/link.**
+
+The data can be found at the [Department of Biostatistics at Vanderbilt University website](http://biostat.mc.vanderbilt.edu/wiki/Main/DataSets) and scrolling down to 'U.S. counties and 1992 presidential election dataset'.  The region data was found on [Kaggle](https://www.kaggle.com/omer2040/usa-states-to-region).
+
+### Dependent Variable
+
+**What is the response variable? Is it quantitative or qualitative?**
+
+The response variable is the % of residents that voted for democratic or republican nominee in the 1992 election.  This variable is quantitative.
+
+
+### Independent Variable
+
+The independent variables are:  
+
+* Pop.density - quantitative
+* Income - quantitative  
+* % College Educated - quantative 
+* Region - qualitative
+
+### Relevant summary statistics 
+
+**Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
+
+```{r describe-variables}
+describe(county_data$pop.density)
+describe(county_data$college)
+describe(county_data$income)
+describe(county_data$democrat)
+describe(county_data$republican)
+```
+
+```{r histograms}
+head(county_data %>% arrange(-pop.density),10)
+
+hist(county_data$pop.density)
+hist(county_data$college)
+hist(county_data$income)
+hist(county_data$democrat)
+hist(county_data$republican)
+```
+
+```{r boxplots}
+head(county_data %>% arrange(-pop.density),10)
+
+boxplot(county_data$pop.density,ylab="Population Density")
+boxplot(county_data$college,ylab="% with Bachelor Degree")
+boxplot(county_data$income,ylab="Median Family Income ")
+boxplot(county_data$democrat,ylab="% Residents Voted for Democrat")
+boxplot(county_data$democrat,ylab="% Residents Voted for Republican")
+```
+
+```{r scatterplot}
+ggplot(county_data,aes(x=pop.density,y=republican)) + geom_point()
+ggplot(county_data,aes(x=pop.density,y=democrat))+ geom_point()
+
+ggplot(county_data,aes(x=income,y=republican)) + geom_point()
+ggplot(county_data,aes(x=income,y=democrat))+ geom_point()
+
+ggplot(county_data,aes(x=college,y=republican)) + geom_point()
+ggplot(county_data,aes(x=college,y=democrat)) + geom_point()
+  
+```
+
+
+
